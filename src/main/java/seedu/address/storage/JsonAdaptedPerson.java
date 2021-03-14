@@ -10,7 +10,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
-import seedu.address.model.person.*;
+import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
+import seedu.address.model.person.Name;
+import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonType;
+import seedu.address.model.person.Phone;
+import seedu.address.model.person.Remark;
+import seedu.address.model.person.Student;
+import seedu.address.model.person.Tutor;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -25,6 +33,7 @@ class JsonAdaptedPerson {
     private final String email;
     private final String address;
     private final String remark;
+    private final String personType;
     private final List<JsonAdaptedTag> tagged = new ArrayList<>();
 
     /**
@@ -33,7 +42,8 @@ class JsonAdaptedPerson {
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
             @JsonProperty("email") String email, @JsonProperty("address") String address,
-            @JsonProperty("remark") String remark, @JsonProperty("tagged") List<JsonAdaptedTag> tagged) {
+            @JsonProperty("remark") String remark, @JsonProperty("tagged") List<JsonAdaptedTag> tagged,
+            @JsonProperty("personType") String personType) {
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -42,6 +52,7 @@ class JsonAdaptedPerson {
         if (tagged != null) {
             this.tagged.addAll(tagged);
         }
+        this.personType = personType;
     }
 
     /**
@@ -56,6 +67,7 @@ class JsonAdaptedPerson {
         tagged.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
+        personType = source.getPersonType().toString();
     }
 
     /**
@@ -106,8 +118,22 @@ class JsonAdaptedPerson {
         }
         final Remark modelRemark = new Remark(remark);
 
+        if (personType == null) {
+            throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT,
+                    PersonType.class.getSimpleName()));
+        }
+        if (!PersonType.isValidPersonType(personType)) {
+            throw new IllegalValueException(PersonType.MESSAGE_CONSTRAINTS);
+        }
+        final PersonType modelPersonType = new PersonType(personType);
+
         final Set<Tag> modelTags = new HashSet<>(personTags);
-        return new Person(modelName, modelPhone, modelEmail, modelAddress, modelRemark, modelTags);
+        if (modelPersonType.toString().equals("student")) {
+            return new Student(modelName, modelPhone, modelEmail, modelAddress, modelTags);
+        } else {
+            return new Tutor(modelName, modelPhone, modelEmail, modelAddress, modelTags);
+        }
+
     }
 
 }

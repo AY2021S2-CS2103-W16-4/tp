@@ -25,6 +25,7 @@ public class Person {
     private final Remark remark;
     private final Set<Tag> tags = new HashSet<>();
 
+    private PersonType personType;
     /**
      * Every field must be present and not null.
      */
@@ -56,6 +57,13 @@ public class Person {
 
     public Remark getRemark() {
         return remark;
+    }
+    public PersonType getPersonType() {
+        return personType;
+    }
+
+    public void setPersonType(PersonType personType) {
+        this.personType = personType;
     }
 
     /**
@@ -127,5 +135,4 @@ public class Person {
         }
         return builder.toString();
     }
-
 }
